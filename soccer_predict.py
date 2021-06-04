@@ -1,3 +1,20 @@
+# Thuc Nguyen
+'''
+
+the data are now in the same form as the MNIST data after flattening their exemplars into pairs  
+of  row  vectors  (see  MNIST_dense.py).  
+The  inputs  are  22-element  binary  vectors.  
+Each  element  represents one of the 22 players, 
+with a 1 indicating that the player participated in a given match and a 0 meaning that he did not.
+The outputs are 4-element vectors indicating:
+
+The number of goals scored,
+The number of goals conceded,
+The total number of drinks that the team had after the match,
+The money (in Euros) that the team gained (positive number) or lost (negative number) through the match
+
+'''
+
 import pickle
 import numpy as np
 import random
