@@ -1,17 +1,26 @@
 # Thuc Nguyen
+
 '''
 
-the data are now in the same form as the MNIST data after flattening their exemplars into pairs  
-of  row  vectors  (see  MNIST_dense.py).  
+the data are now in the same form after flattening their exemplars into pairs of row vectors.  
 The  inputs  are  22-element  binary  vectors.  
 Each  element  represents one of the 22 players, 
 with a 1 indicating that the player participated in a given match and a 0 meaning that he did not.
-The outputs are 4-element vectors indicating:
 
-The number of goals scored,
-The number of goals conceded,
-The total number of drinks that the team had after the match,
-The money (in Euros) that the team gained (positive number) or lost (negative number) through the match
+The  networks  use  sigmoid  activation  functions  in  the  output  layer. 
+The  network  for additionally  contains a hidden layer of 100 ReLU neurons.
+After training each network for 200 epochs, 
+we get the following standard deviations for 4-element vectors indicating:
+
+Goals scored: 4.59 
+•Goals conceded: 3.93
+•Drinks: 13.06 liters
+•Financial gain: $111.520
+
+ the  output  variables  are  not  simply  weighted  sums  of  individual  players’  characteristics.  
+ If  they  were,  a  neuron  without  hidden  layers  could  do  a  perfect  job,  except  for  any  random noise in the data. 
+ However, given that different team configurations exert additional, 
+ non-linear effects on the output variables, we need at least one additional layer with non-linear activation function to closely learn the desired function.
 
 '''
 
@@ -21,6 +30,7 @@ import random
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
+# build the neural network model
 num_inputs = 22
 num_outputs = 4
 batch_size = 100
@@ -52,7 +62,8 @@ train_data_Ynorm = y_train / 255.0
 test_data_Ynorm = y_test / 255.0
 
 # Scaling outputs to be larger than 0 and less than 1
-# (Not exactly 0 or 1, because we want to use the sigmoid function that can only approach but never reach these values)
+# (Not exactly 0 or 1, because we want to use the sigmoid function that can 
+# only approach but never reach these values)
 y_train_norm = (y_train - [-1, -1, 0, -1000000]) / [12, 12, 200, 3000000]
 y_test_norm = (y_test - [-1, -1, 0, -1000000]) / [12, 12, 200, 3000000]
 
@@ -64,10 +75,10 @@ create_model.add(tf.keras.layers.Dense(num_outputs, activation='sigmoid', name='
 create_model.add(tf.keras.layers.Lambda(lambda x: x * 400))
 
 # 2. Compile the model, this time with a regression-specific loss function
-create_model.compile(loss=tf.keras.losses.mse, optimizer=tf.keras.optimizers.Adam(1e-4), metrics=['mse'])
+create_model.compile(loss=tf.keras.losses.mse, optimizer=tf.keras.optimizers.Adam(), metrics=['mse'])
 
 # 3. Fit the model
-history = create_model.fit(x_train, y_train_norm, batch_size=batch_size, epochs=num_epochs, verbose=2, validation_data=(x_test, y_test_norm))
+history = create_model.fit(x_train, y_train_norm, batch_size=batch_size, epochs=num_epochs, verbose=1, validation_data=(x_test, y_test_norm))
 create_model.summary()
 
 # Check the classification performance of the trained network on the test data
@@ -76,6 +87,9 @@ final_test_loss, final_test_accuracy = create_model.evaluate(x_test, y_test, ver
 
 print('Final training loss (mean square error):', final_train_loss)
 print('Final test loss (mean square error):', final_test_loss)
+
+y_train_norm = (y_train + [-1, -1, 0, 1000000]) / [12, 12, 300, 3000000]
+y_test_norm = (y_test + [-1, -1, 0, 1000000]) / [12, 12, 300, 3000000]
 
 # Get the rescaled predictions for the test set and compute their deviation from the desired ones
 y_predict_norm = create_model.predict(x_test)
